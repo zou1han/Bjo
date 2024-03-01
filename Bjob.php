@@ -65,10 +65,14 @@
     <form method="post">
         <input type="number" name="value" placeholder="Enter value" required>
         <select name="from_unit" required>
-            <option value="meter">Meter</option>
             <option value="kilometer">Kilometer</option>
+            <option value="meter">Meter</option>
+            <option value="foot">Foot</option>
+            <option value="mile">Mile</option>
         </select>
         <select name="to_unit" required>
+            <option value="meter">Meter</option>
+            <option value="kilometer">Kilometer</option>
             <option value="foot">Foot</option>
             <option value="mile">Mile</option>
         </select>
@@ -87,21 +91,35 @@
     }
 
     function convert($value, $from_unit, $to_unit) {
+        // คำนวณจากหน่วยต้นทางไปหน่วยปลายทาง
         switch ($from_unit) {
-            case 'meter':
-                $meter_value = $value;
-                break;
             case 'kilometer':
                 $meter_value = $value * 1000;
                 break;
-        }
-
-        switch ($to_unit) {
+            case 'meter':
+                $meter_value = $value;
+                break;
             case 'foot':
-                $result = $meter_value * 3.28084;
+                $meter_value = $value * 0.3048;
                 break;
             case 'mile':
-                $result = $meter_value * 0.000621371;
+                $meter_value = $value * 1609.34;
+                break;
+        }
+
+        // คำนวณจากหน่วยเมตรไปหน่วยปลายทาง
+        switch ($to_unit) {
+            case 'kilometer':
+                $result = $meter_value / 1000;
+                break;
+            case 'meter':
+                $result = $meter_value;
+                break;
+            case 'foot':
+                $result = $meter_value / 0.3048;
+                break;
+            case 'mile':
+                $result = $meter_value / 1609.34;
                 break;
         }
 
