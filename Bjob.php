@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Unit Converter</title>
+    <meta charset="UTF-8">
+    <title>โปรแกรมแปลงหน่วยวัด</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f7f7f7;
+            font-family: 'Tahoma', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             margin: 0;
-            padding: 0;
         }
         .container {
             width: 50%;
-            margin: 50px auto;
             padding: 20px;
             background-color: #fff;
             border-radius: 5px;
@@ -20,6 +23,7 @@
         h2 {
             text-align: center;
             margin-bottom: 30px;
+            color: #333;
         }
         form {
             text-align: center;
@@ -39,94 +43,159 @@
             border-radius: 5px;
             box-sizing: border-box;
         }
-        button {
-            padding: 12px 30px;
-            background-color: #4caf50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
         .result {
             text-align: center;
             margin-top: 30px;
             font-size: 18px;
+            color: #4CAF50;
+        }
+        select:hover, input[type="number"]:hover {
+            background-color: #f2f2f2;
+        }
+        select:active, input[type="number"]:active {
+            background-color: #e6e6e6;
+        }
+        .unit-info {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #777;
+        }
+        #swap_units {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #swap_units:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Unit Converter</h2>
-    <form method="post">
-        <input type="number" name="value" placeholder="Enter value" required>
-        <select name="from_unit" required>
-            <option value="kilometer">Kilometer</option>
-            <option value="meter">Meter</option>
-            <option value="foot">Foot</option>
-            <option value="mile">Mile</option>
+    <h2>0โปรแกรมแปลงหน่วยวัด</h2>
+    <form>
+        <input type="number" id="value" placeholder="ป้อนค่า" step="any">
+        <select id="from_unit">
+            <option value="เมตร">เมตร</option>
+            <option value="กิโลเมตร">กิโลเมตร</option>
+            <option value="เซนติเมตร">เซนติเมตร</option>
+            <option value="นิ้ว">นิ้ว</option>
+            <option value="ฟุต">ฟุต</option>
+            <option value="หลา">หลา</option>
+            <option value="ไมล์">ไมล์</option>
         </select>
-        <select name="to_unit" required>
-            <option value="meter">Meter</option>
-            <option value="kilometer">Kilometer</option>
-            <option value="foot">Foot</option>
-            <option value="mile">Mile</option>
+        <select id="to_unit">
+            <option value="เมตร">เมตร</option>
+            <option value="กิโลเมตร">กิโลเมตร</option>
+            <option value="เซนติเมตร">เซนติเมตร</option>
+            <option value="นิ้ว">นิ้ว</option>
+            <option value="ฟุต">ฟุต</option>
+            <option value="หลา">หลา</option>
+            <option value="ไมล์">ไมล์</option>
         </select>
-        <br>
-        <button type="submit">Convert</button>
+        <button type="button" id="swap_units">สลับหน่วย</button>
     </form>
+    <div class="result" id="result"></div>
 
-    <?php
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $value = $_POST["value"];
-        $from_unit = $_POST["from_unit"];
-        $to_unit = $_POST["to_unit"];
+    <div class="unit-info">
+        หน่วยวัดแต่ละหน่วยแปลงออกมาได้เป็นเมตรดังนี้:<br>
+        เมตร: 1 เมตร<br>
+        กิโลเมตร: 1,000 เมตร<br>
+        เซนติเมตร: 0.01 เมตร<br>
+        นิ้ว: 0.0254 เมตร<br>
+        ฟุต: 0.3048 เมตร<br>
+        หลา: 0.9144 เมตร<br>
+        ไมล์: 1,609.34 เมตร<br>
+    </div>
 
-        $result = convert($value, $from_unit, $to_unit);
-        echo "<div class='result'>$value $from_unit = $result $to_unit</div>";
-    }
+    <script>
+        const valueInput = document.getElementById('value');
+        const fromUnitSelect = document.getElementById('from_unit');
+        const toUnitSelect = document.getElementById('to_unit');
+        const resultDiv = document.getElementById('result');
+        const swapUnitsButton = document.getElementById('swap_units');
 
-    function convert($value, $from_unit, $to_unit) {
-        // คำนวณจากหน่วยต้นทางไปหน่วยปลายทาง
-        switch ($from_unit) {
-            case 'kilometer':
-                $meter_value = $value * 1000;
-                break;
-            case 'meter':
-                $meter_value = $value;
-                break;
-            case 'foot':
-                $meter_value = $value * 0.3048;
-                break;
-            case 'mile':
-                $meter_value = $value * 1609.34;
-                break;
+        function convert() {
+            const value = parseFloat(valueInput.value);
+            const fromUnit = fromUnitSelect.value;
+            const toUnit = toUnitSelect.value;
+
+            let meterValue;
+            switch (fromUnit) {
+                case 'เมตร':
+                    meterValue = value;
+                    break;
+                case 'กิโลเมตร':
+                    meterValue = value * 1000;
+                    break;
+                case 'เซนติเมตร':
+                    meterValue = value / 100;
+                    break;
+                case 'นิ้ว':
+                    meterValue = value * 0.0254;
+                    break;
+                case 'ฟุต':
+                    meterValue = value * 0.3048;
+                    break;
+                case 'หลา':
+                    meterValue = value * 0.9144;
+                    break;
+                case 'ไมล์':
+                    meterValue = value * 1609.34;
+                    break;
+                default:
+                    meterValue = 0;
+            }
+
+            let result;
+            switch (toUnit) {
+                case 'เมตร':
+                    result = meterValue;
+                    break;
+                case 'กิโลเมตร':
+                    result = meterValue / 1000;
+                    break;
+                case 'เซนติเมตร':
+                    result = meterValue * 100;
+                    break;
+                case 'นิ้ว':
+                    result = meterValue / 0.0254;
+                    break;
+                case 'ฟุต':
+                    result = meterValue / 0.3048;
+                    break;
+                case 'หลา':
+                    result = meterValue / 0.9144;
+                    break;
+                case 'ไมล์':
+                    result = meterValue / 1609.34;
+                    break;
+            }
+
+            resultDiv.textContent = `${value} ${fromUnit} = ${result.toFixed(2)} ${toUnit}`;
         }
 
-        // คำนวณจากหน่วยเมตรไปหน่วยปลายทาง
-        switch ($to_unit) {
-            case 'kilometer':
-                $result = $meter_value / 1000;
-                break;
-            case 'meter':
-                $result = $meter_value;
-                break;
-            case 'foot':
-                $result = $meter_value / 0.3048;
-                break;
-            case 'mile':
-                $result = $meter_value / 1609.34;
-                break;
+        function swapUnits() {
+            const tempUnit = fromUnitSelect.value;
+            fromUnitSelect.value = toUnitSelect.value;
+            toUnitSelect.value = tempUnit;
+            convert();
         }
 
-        return $result;
-    }
-    ?>
+        valueInput.addEventListener('input', convert);
+        fromUnitSelect.addEventListener('change', convert);
+        toUnitSelect.addEventListener('change', convert);
+        swapUnitsButton.addEventListener('click', swapUnits);
 
+        // คำนวณค่าเมื่อหน่วยหรือค่าเริ่มต้นเปลี่ยนแปลง
+        convert();
+    </script>
 </div>
 
 </body>
